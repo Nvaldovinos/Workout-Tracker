@@ -1,36 +1,40 @@
 const router = require('express').Router();
-const Workout = require('../models/workout.js')
+const Workouts = require('../models/workout.js')
 
-//route to grab all the workouts and populate the dashboard
-router.get('/api/workouts', (req, res) => {
-    Workout.find({})
-    then(dbWorkout =>{
-        res.json(dbWorkout)
-    })
-    .catch(err =>{
-        res.status(400).json(err)
-    });
-});
-
-
+// route to grab all the workouts and populate the dashboard
 // router.get('/api/workouts', (req, res) => {
-//     Workout.aggregate(
-//         //get total duration of the workouts.
-//     )
-//     .then(dbWorkout =>{
+//     Workouts.find({})
+//     then(dbWorkout =>{
 //         res.json(dbWorkout)
 //     })
 //     .catch(err =>{
 //         res.status(400).json(err)
 //     });
-// })
+// });
+
+//get total duration of the workouts.
+router.get('/api/workouts', (req, res) => {
+    Workouts.aggregate([{
+        $addfields: {totalDuration: {$sum: 'exercises.duration'}}
+    }])
+    .then(resWorkouts =>{
+        res.json(resWorkouts)
+    })
+    .catch(err =>{
+        res.status(400).json(err)
+    });
+})
 
 
 //route to get the workouts within their range
 router.get('/api/workouts/range', (req, res) =>{
-    Workout.find({})
-    then(dbWorkout =>{
-        res.json(dbWorkout)
+    Workouts.aggregate([
+        {$addfields: {totalDuration: {$sum: '$exercises.duration'}}},
+        {$sort: {'day': -1}},
+        {$limit: (7)}
+    ])
+    .then(resWorkouts =>{
+        res.json(resWorkouts)
     })
     .catch(err =>{
         res.status(400).json(err)
@@ -38,10 +42,10 @@ router.get('/api/workouts/range', (req, res) =>{
 });
 
 //gets workout.js from public folder 
-router.post('/api/workouts', ({ body }, res) => {
-   Workout.create(body)
-   .then(dbWorkout =>{
-       res.json(dbWorkout)
+router.post('/api/workouts', (req, res) => {
+   Workouts.create({})
+   .then(resWorkouts =>{
+       res.json(resWorkouts)
    })
    .catch(err =>{
        res.status(400).json(err)
@@ -50,15 +54,14 @@ router.post('/api/workouts', ({ body }, res) => {
   
 //route to update existing workouts
 router.put('/api/workouts/:id', async (req, res) => {
-    Workout.findByIdAndUpdate(req.params.id, {
-        $push: { exercises: req.body}
+    Workouts.findByIdAndUpdate({'_id': req.params.id},
+    {$push: {'exercises': req.body}})
+    .then(resWorkouts =>{
+        res.json(resWorkouts)
     })
-        .then(dbWorkout =>{
-            res.json(dbWorkout)
-        })
-        .catch(err =>{
-            res.status(400).json(err)
-        });
+    .catch(err =>{
+        res.status(400).json(err)
+    });
 });
 
 //route to delete workouts. router.delete
