@@ -1,2 +1,2 @@
-module.exports = {Workout: require('./workout.js')};
+module.exports = {Workouts: require('./workouts.js')};
 

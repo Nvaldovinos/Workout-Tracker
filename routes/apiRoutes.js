@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const Workouts = require('../models/workout.js')
+const Workouts = require('../models/workouts.js')
 
 // route to grab all the workouts and populate the dashboard
 // router.get('/api/workouts', (req, res) => {
