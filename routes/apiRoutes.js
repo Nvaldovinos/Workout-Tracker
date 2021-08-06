@@ -74,7 +74,5 @@ router.put('/api/workouts/:id', async (req, res) => {
 //route to delete workouts. router.delete
 
 
-
-
 module.exports = router;
 
